@@ -104,8 +104,6 @@ function ProjectMembers() {
       } else {
         setMessage(data.message || "Could not remove member");
       }
-
-      //ask the server for the current list so the page matches the database
       loadMembers(selectedProjectId);
     } catch (error) {
       setMessage("Could not connect to the server");
