@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-
 function ProjectMembers() {
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
@@ -92,6 +91,27 @@ function ProjectMembers() {
     }
   }
 
+  async function handleRemoveMember(userId) {
+    try {
+      const response = await fetch(
+        `http://localhost:9000/projects/${selectedProjectId}/members/${userId}`,
+        { method: "DELETE" }
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage(data.message || "Member removed successfully");
+      } else {
+        setMessage(data.message || "Could not remove member");
+      }
+
+      //ask the server for the current list so the page matches the database
+      loadMembers(selectedProjectId);
+    } catch (error) {
+      setMessage("Could not connect to the server");
+    }
+  }
+
   return (
     <div>
       <h2>Project Members</h2>
@@ -115,7 +135,11 @@ function ProjectMembers() {
             {members.map((member) => (
               <li key={member.membership_id}>
                 {member.f_name} {member.l_name} ({member.username})
-                {member.is_lead && <span> - Project lead</span>}
+                {member.is_lead ? (
+                  <span> - Project lead</span>
+                ) : (
+                  <button onClick={() => handleRemoveMember(member.user_id)}>Remove</button>
+                )}
               </li>
             ))}
           </ul>
