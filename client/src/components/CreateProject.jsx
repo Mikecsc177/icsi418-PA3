@@ -36,6 +36,7 @@ function CreateProject() {
     }
 
     try {
+        //posts to projects with data as JSON (POST PROJECTS)
       const response = await fetch("http://localhost:9000/projects", {
         method: "POST",
         headers: {
@@ -47,6 +48,8 @@ function CreateProject() {
           status: status,
           project_lead_id: projectLeadId
         })
+
+
       });
       const data = await response.json();
 

@@ -149,7 +149,7 @@ app.post("/projects", async (req, res) => {
       return res.status(404).json({ message: "Selected project lead does not exist" });
     }
 
-    //project creation
+    //NAME DESCRIPTION STATUS AND PROJECT LEAD ID
     const result = await projects.insertOne({
       name: name.trim(),
       description: description.trim(),
@@ -157,7 +157,7 @@ app.post("/projects", async (req, res) => {
       project_lead_id: leadId
     });
 
-    //the project lead is also a member of the project
+    //LEAD MEMBERSHIP CREATION
     try {
       await memberships.insertOne({
         project_id: result.insertedId,
@@ -230,6 +230,7 @@ app.get("/projects/:projectId/members", async (req, res) => {
     const members = await memberships.aggregate([
       { $match: { project_id: projectId } },
       {
+        //turn user ids into names
         $lookup: {
           from: "users",
           localField: "user_id",
@@ -264,7 +265,7 @@ app.get("/projects/:projectId/members", async (req, res) => {
   }
 });
 
-//adds a member to a project
+//ADDING A MEMBER CREATES A MEMBERSHIP
 app.post("/projects/:projectId/members", async (req, res) => {
   try {
     const { user_id } = req.body;
@@ -301,7 +302,7 @@ app.post("/projects/:projectId/members", async (req, res) => {
     res.status(201).json({ message: "Member added successfully" });
 
   } catch (error) {
-    
+    //catch for error 11000 dupe error
     if (error.code === 11000) {
       return res.status(409).json({ message: "User is already a member of this project" });
     }

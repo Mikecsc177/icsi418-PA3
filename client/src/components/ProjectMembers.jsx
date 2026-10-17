@@ -8,7 +8,7 @@ function ProjectMembers() {
   const [userToAdd, setUserToAdd] = useState("");
   const [message, setMessage] = useState("");
 
-  //load the projects and users for the dropdowns
+  //loads the project data (load data)
   useEffect(() => {
     async function loadData() {
       try {
@@ -30,7 +30,7 @@ function ProjectMembers() {
     loadData();
   }, []);
 
-  //gets the member list for one project
+  //gets the member list for one project (load members)
   async function loadMembers(projectId) {
     if (!projectId) {
       setMembers([]);
@@ -38,6 +38,7 @@ function ProjectMembers() {
     }
 
     try {
+      //get for project members
       const response = await fetch(`http://localhost:9000/projects/${projectId}/members`);
       const data = await response.json();
       if (response.ok) {
@@ -50,7 +51,7 @@ function ProjectMembers() {
       setMessage("Could not connect to the server");
     }
   }
-
+//member add
   function handleProjectChange(event) {
     const projectId = event.target.value;
     setSelectedProjectId(projectId);
@@ -58,7 +59,7 @@ function ProjectMembers() {
     setMessage("");
     loadMembers(projectId);
   }
-
+//handles adding members
   async function handleAddMember(event) {
     event.preventDefault();
 
@@ -66,7 +67,7 @@ function ProjectMembers() {
       setMessage("Select a project and a user first");
       return;
     }
-
+    //POST to add members
     try {
       const response = await fetch(`http://localhost:9000/projects/${selectedProjectId}/members`, {
         method: "POST",
@@ -75,6 +76,8 @@ function ProjectMembers() {
         },
         body: JSON.stringify({ user_id: userToAdd })
       });
+
+      //server messages confirming member added or if member added failed
       const data = await response.json();
 
       if (response.ok) {
@@ -84,13 +87,13 @@ function ProjectMembers() {
         setMessage(data.message || "Could not add member");
       }
 
-      //ask the server for the current list so the page matches the database
+      //ask the server for the current list so the page matches the database (RELOAD LIST)
       loadMembers(selectedProjectId);
     } catch (error) {
       setMessage("Could not connect to the server");
     }
   }
-
+//DELETE to remove a member
   async function handleRemoveMember(userId) {
     try {
       const response = await fetch(
@@ -99,11 +102,13 @@ function ProjectMembers() {
       );
       const data = await response.json();
 
+      //handles member removal
       if (response.ok) {
         setMessage(data.message || "Member removed successfully");
       } else {
         setMessage(data.message || "Could not remove member");
       }
+        //RELOAD list
       loadMembers(selectedProjectId);
     } catch (error) {
       setMessage("Could not connect to the server");
@@ -127,8 +132,8 @@ function ProjectMembers() {
         <div>
           <h3>Members</h3>
 
+              
           {members.length === 0 && <p>No members yet.</p>}
-
           <ul>
             {members.map((member) => (
               <li key={member.membership_id}>
